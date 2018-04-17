@@ -3,9 +3,20 @@ import BOX from '../box/box';
 class Layout extends Component{
     constructor(props){
         super(props);
-        this.state ={rows: Array(9).fill(null), cols: Array(6).fill(null),noOfUsers: 2};
+        this.state ={rows: Array(9).fill(null), cols: Array(6).fill(null),noOfUsers: 2, 
+            players: [{
+                turn: true,
+                color: 'yellow'
+            },{
+                turn: false,
+                color: 'red'
+            }
+        ] 
+        };
         this.setBallValueFromChild = this.setBallValueFromChild.bind(this);
         this.selectUser = this.selectUser.bind(this);
+        this.setPlayer = this.setPlayer.bind(this);
+        this.samePlayerTurn = this.samePlayerTurn.bind(this);   
     }
     render(){
         return(
@@ -23,7 +34,7 @@ class Layout extends Component{
                     <div key={row} className="col-md-6 col-md-offset-4 box-container">
                     {
                         this.state.cols.map((item,index) => (
-                            <BOX key={row+index} rowNumber={row} ref={`${row}${index}`} noOfUsers={this.state.noOfUsers} colNumber={index} callback={this.setBallValueFromChild}/>
+                            <BOX key={row+index} rowNumber={row} ref={`${row}${index}`} samePlayerTurn={this.samePlayerTurn} noOfUsers={this.state.players} colNumber={index} callback={this.setBallValueFromChild} setPlayerCallback={this.setPlayer}/>
                         ))
                     }
                     </div>
@@ -34,17 +45,32 @@ class Layout extends Component{
            
         )
     }
-    setBallValueFromChild(array){
-        console.log("....row number",array);
+   
+    setBallValueFromChild(row,col,array){
+        let color = this.refs[`${row}${col}`].state.color;
+        this.refs[`${row}${col}`].setSingleColor();
         array.forEach(item => {
             setTimeout(()=> {
-                this.refs[`${item.row}${item.col}`].insertBall();
+                this.refs[`${item.row}${item.col}`].blastBall();
+                this.refs[`${item.row}${item.col}`].setColor(color);  
             }, 200)
         });
     }
-    selectUser(e){
-        let noOfUser = this.refs.noOfUsers.value;
-        console.log("....no of users", noOfUser); 
+    selectUser(e){}
+    setPlayer(){
+        this.state.players.filter((item,index) => {
+            this.state.players[index].turn = !item.turn
+        })
+        this.setState({
+            players: this.state.players
+        },() =>{
+            // console.log("....players",this.state.players);
+        })
+    }
+    samePlayerTurn(players){
+        this.setState({
+            players: players
+        })
     }
    
 }
