@@ -52,7 +52,7 @@ class Layout extends Component{
         array.forEach(item => {
             setTimeout(()=> {
                 this.refs[`${item.row}${item.col}`].blastBall();
-                this.refs[`${item.row}${item.col}`].setColor(this.state.currentColor);  
+                // this.refs[`${item.row}${item.col}`].setColor(this.state.currentColor);  
             }, 200)
         });
     }
