@@ -24,50 +24,44 @@ class BOX extends Component {
         this.ballArr = [];
     }
 
+    componentWillReceiveProps(nextProps) {
+        if((nextProps.currentColor !== this.props.currentColor) && this.haveUserClicked) {
+            console.log('yayyyy @@@ not same color');
+            this.haveUserClicked = false;
+            this.insertBall();
+        }
+    }
+
     setColor(color) {
-        this.props.noOfUsers.filter(item => {
-            if (item.color === color) {
-                item.turn = true
-            }else{
-                item.turn = false
-            }
-        })
         this.setState({
             color: color
-        },()=>{
-            this.props.samePlayerTurn(this.props.noOfUsers)
         })
     }
     setSingleColor() {
+        console.log("....set single color");
         this.setState({
             color: null
         })
     }
     blastBall(){
         console.log(".....blast ball");
-        let playerTurn = this.props.noOfUsers.filter(item => {
-            if (item.turn === true) {
-                return {
-                    item: item.color
-                }
-            }
-        })
+        let playerTurn = this.props.currentColor;
         if (this.state.maxBalls > this.state.currentBall) {
 
             let { rowNumber, colNumber } = this.props;
             this.setState({
                 currentBall: this.state.currentBall + 1,
-                color: playerTurn[0].color
+                color: playerTurn
             })
 
         } else if (this.state.maxBalls > this.state.currentBall) {
-            console.log(".....box with same", playerTurn[0].color);
+            // console.log(".....box with same", playerTurn[0].color);
             this.setState({
                 currentBall: this.state.currentBall + 1,
-                color: playerTurn[0].color
+                color: playerTurn
             })
         } else {
-            console.log(".....playerTurn color", playerTurn[0].color);
+            // console.log(".....playerTurn color", playerTurn[0].color);
             let { rowNumber, colNumber } = this.props;
             let array;
             if (this.state.maxBalls === 1) {
@@ -100,80 +94,80 @@ class BOX extends Component {
             }
             this.setState({
                 currentBall: 0,
-                color: playerTurn[0].color
+                color: null
             }, () => {
                 this.props.callback(rowNumber, colNumber, array);
             })
         }
     }
 
-    insertBall() {
-        console.log(".....insertBall");
-        let playerTurn = this.props.noOfUsers.filter(item => {
-            if (item.turn === true) {
-                return {
-                    item: item.color
+    insertBall(haveUserClicked) {
+        console.log('state color: ', this.state.color, this.props.nextColor);
+        if (haveUserClicked && (this.state.color === null || this.state.color === this.props.nextColor)) {
+            console.log('why here', this.props.nextColor);
+            this.haveUserClicked = true;
+            this.props.setPlayerCallback();
+        } else {
+            console.log(".....insertBal1l ", this.props.nextColor);
+            let playerTurn = this.props.nextColor;
+            console.log('playerTurn[0].color- @@', this.props.noOfUsers[0].color, this.props.noOfUsers[0].turn);
+            console.log('playerTurn[0].color- @@11', this.props.noOfUsers[1].color, this.props.noOfUsers[1].turn)
+            if ((this.state.maxBalls > this.state.currentBall) && (this.state.color === null)) {
+    
+                let { rowNumber, colNumber } = this.props;
+                this.setState({
+                    currentBall: this.state.currentBall + 1,
+                    color: playerTurn
+                }, () => {
+                     // this.props.setPlayerCallback();
+                })
+    
+            } else if ((this.state.maxBalls > this.state.currentBall) && (this.state.color === playerTurn)) {
+                // console.log(".....box with same", playerTurn[0].color);
+                this.setState({
+                    currentBall: this.state.currentBall + 1,
+                    color: playerTurn
+                }, () => {
+                    // this.props.setPlayerCallback();
+                })
+            } else if (this.state.maxBalls === this.state.currentBall && this.state.color === playerTurn) {
+                // console.log(".....playerTurn color", playerTurn[0].color);
+                let { rowNumber, colNumber } = this.props;
+                let array;
+                if (this.state.maxBalls === 1) {
+                    if (rowNumber === 0 && colNumber === 0) {
+                        array = [{ row: rowNumber, col: colNumber + 1 }, { row: rowNumber + 1, col: colNumber }];
+                    } else if (rowNumber === 0 && colNumber === 5) {
+                        array = [{ row: rowNumber, col: colNumber - 1 }, { row: rowNumber + 1, col: colNumber }];
+                    } else if (rowNumber === 8 && colNumber === 0) {
+                        array = [{ row: rowNumber - 1, col: colNumber }, { row: rowNumber, col: colNumber + 1 }];
+                    } else {
+                        array = [{ row: rowNumber - 1, col: colNumber }, { row: rowNumber, col: colNumber - 1 }];
+                    }
                 }
+                if (this.state.maxBalls === 2) {
+                    if (rowNumber === 0) {
+                        array = [{ row: rowNumber, col: colNumber - 1 }, { row: rowNumber, col: colNumber + 1 }, { row: rowNumber + 1, col: colNumber }]
+                    }
+                    if (rowNumber === 8) {
+                        array = [{ row: rowNumber, col: colNumber - 1 }, { row: rowNumber, col: colNumber + 1 }, { row: rowNumber - 1, col: colNumber }]
+                    }
+                    if (colNumber === 0) {
+                        array = [{ row: rowNumber - 1, col: colNumber }, { row: rowNumber + 1, col: colNumber }, { row: rowNumber, col: colNumber + 1 }]
+                    }
+                    if (colNumber === 5) {
+                        array = [{ row: rowNumber - 1, col: colNumber }, { row: rowNumber + 1, col: colNumber }, { row: rowNumber, col: colNumber - 1 }]
+                    }
+                }
+                if (this.state.maxBalls === 3) {
+                    array = [{ row: rowNumber - 1, col: colNumber }, { row: rowNumber + 1, col: colNumber }, { row: rowNumber, col: colNumber - 1 }, { row: rowNumber, col: colNumber + 1 }];
+                }
+                this.setState({
+                    currentBall: 0
+                }, () => {
+                    this.props.callback(rowNumber, colNumber, array);
+                })
             }
-        })
-        console.log(".....blah blah blah", this.state.maxBalls > this.state.currentBall, this.state.color, playerTurn[0].color,  this.state.color === playerTurn[0].color);
-
-        if ((this.state.maxBalls > this.state.currentBall) && (this.state.color === null)) {
-
-            let { rowNumber, colNumber } = this.props;
-            this.setState({
-                currentBall: this.state.currentBall + 1,
-                color: playerTurn[0].color
-            }, () => {
-                this.props.setPlayerCallback();
-            })
-
-        } else if ((this.state.maxBalls > this.state.currentBall) && (this.state.color === playerTurn[0].color)) {
-            console.log(".....box with same", playerTurn[0].color);
-            this.setState({
-                currentBall: this.state.currentBall + 1,
-                color: playerTurn[0].color
-            }, () => {
-                this.props.setPlayerCallback();
-            })
-        } else if (this.state.maxBalls === this.state.currentBall && this.state.color === playerTurn[0].color) {
-            console.log(".....playerTurn color", playerTurn[0].color);
-            let { rowNumber, colNumber } = this.props;
-            let array;
-            if (this.state.maxBalls === 1) {
-                if (rowNumber === 0 && colNumber === 0) {
-                    array = [{ row: rowNumber, col: colNumber + 1 }, { row: rowNumber + 1, col: colNumber }];
-                } else if (rowNumber === 0 && colNumber === 5) {
-                    array = [{ row: rowNumber, col: colNumber - 1 }, { row: rowNumber + 1, col: colNumber }];
-                } else if (rowNumber === 8 && colNumber === 0) {
-                    array = [{ row: rowNumber - 1, col: colNumber }, { row: rowNumber, col: colNumber + 1 }];
-                } else {
-                    array = [{ row: rowNumber - 1, col: colNumber }, { row: rowNumber, col: colNumber - 1 }];
-                }
-            }
-            if (this.state.maxBalls === 2) {
-                if (rowNumber === 0) {
-                    array = [{ row: rowNumber, col: colNumber - 1 }, { row: rowNumber, col: colNumber + 1 }, { row: rowNumber + 1, col: colNumber }]
-                }
-                if (rowNumber === 8) {
-                    array = [{ row: rowNumber, col: colNumber - 1 }, { row: rowNumber, col: colNumber + 1 }, { row: rowNumber - 1, col: colNumber }]
-                }
-                if (colNumber === 0) {
-                    array = [{ row: rowNumber - 1, col: colNumber }, { row: rowNumber + 1, col: colNumber }, { row: rowNumber, col: colNumber + 1 }]
-                }
-                if (colNumber === 5) {
-                    array = [{ row: rowNumber - 1, col: colNumber }, { row: rowNumber + 1, col: colNumber }, { row: rowNumber, col: colNumber - 1 }]
-                }
-            }
-            if (this.state.maxBalls === 3) {
-                array = [{ row: rowNumber - 1, col: colNumber }, { row: rowNumber + 1, col: colNumber }, { row: rowNumber, col: colNumber - 1 }, { row: rowNumber, col: colNumber + 1 }];
-            }
-            this.setState({
-                currentBall: 0,
-                color: playerTurn[0].color
-            }, () => {
-                this.props.callback(rowNumber, colNumber, array);
-            })
         }
     }
 
@@ -185,7 +179,7 @@ class BOX extends Component {
         }
         return (
 
-            <button className="boxes" onClick={this.insertBall}>
+            <button className="boxes" onClick={() => {this.insertBall(true)}}>
                 {
                     ball === 1 && <div className="dots" style={style}></div>
                 }{

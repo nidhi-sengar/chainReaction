@@ -10,13 +10,14 @@ class Layout extends Component{
             },{
                 turn: false,
                 color: 'red'
-            }
-        ] 
+            }],
+            currentColor: 'yellow',
+            nextColor: 'red'
         };
         this.setBallValueFromChild = this.setBallValueFromChild.bind(this);
         this.selectUser = this.selectUser.bind(this);
         this.setPlayer = this.setPlayer.bind(this);
-        this.samePlayerTurn = this.samePlayerTurn.bind(this);   
+        // this.samePlayerTurn = this.samePlayerTurn.bind(this);   
     }
     render(){
         return(
@@ -34,7 +35,7 @@ class Layout extends Component{
                     <div key={row} className="col-md-6 col-md-offset-4 box-container">
                     {
                         this.state.cols.map((item,index) => (
-                            <BOX key={row+index} rowNumber={row} ref={`${row}${index}`} samePlayerTurn={this.samePlayerTurn} noOfUsers={this.state.players} colNumber={index} callback={this.setBallValueFromChild} setPlayerCallback={this.setPlayer}/>
+                            <BOX key={row+index} rowNumber={row} ref={`${row}${index}`} samePlayerTurn={this.samePlayerTurn} noOfUsers={this.state.players} currentColor={this.state.currentColor} nextColor={this.state.nextColor} colNumber={index} callback={this.setBallValueFromChild} setPlayerCallback={this.setPlayer}/>
                         ))
                     }
                     </div>
@@ -47,31 +48,40 @@ class Layout extends Component{
     }
    
     setBallValueFromChild(row,col,array){
-        let color = this.refs[`${row}${col}`].state.color;
         this.refs[`${row}${col}`].setSingleColor();
         array.forEach(item => {
             setTimeout(()=> {
                 this.refs[`${item.row}${item.col}`].blastBall();
-                this.refs[`${item.row}${item.col}`].setColor(color);  
+                this.refs[`${item.row}${item.col}`].setColor(this.state.currentColor);  
             }, 200)
         });
     }
     selectUser(e){}
     setPlayer(){
+        let currentColor = '';
+        let nextColor= '';
         this.state.players.filter((item,index) => {
             this.state.players[index].turn = !item.turn
+            if(!item.turn) {
+                nextColor = item.color
+            } else {
+                currentColor= item.color
+            }
         })
+        console.log('nextColor:--', nextColor, currentColor, this.state.players[0].color, this.state.players[0].turn);
         this.setState({
-            players: this.state.players
+            players: this.state.players,
+            currentColor,
+            nextColor
         },() =>{
             // console.log("....players",this.state.players);
         })
     }
-    samePlayerTurn(players){
-        this.setState({
-            players: players
-        })
-    }
+    // samePlayerTurn(players){
+    //     this.setState({
+    //         players: players
+    //     })
+    // }
    
 }
 export default Layout;
